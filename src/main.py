@@ -19,11 +19,20 @@ def createNewUser(database):
             userPassword = input("Enter your password: ")
             confirmPassword = input("Re-enter your password: ")
 
+    # setup the user's security questions
+    print("You must answer two security questions.")
+    answerOne = input("Question 1: What is your favorite color? \n Enter answer: ")
+    answerTwo = input("Question 2: What is your favorite food? \n Enter answer: ")
+
     # put new user into database
     newUser = User(userName, userPassword)
+    questionList = newUser.getSecurityQuestions()
+    questionList.append(answerOne)
+    questionList.append(answerTwo)
     database[userName] = newUser
 
 def loginUser(database):
+
     currUserName = input("Enter your username: ")
     if (currUserName not in database):
         while (currUserName not in database):
@@ -31,11 +40,24 @@ def loginUser(database):
             currUserName = input("Enter your username: ")
 
     currUser = database[currUserName]
+    triesRemaining = 3
     userPassword = input("Enter your login password: ")
     if (userPassword != currUser.password):
         while (userPassword != currUser.password):
-            print("Incorrect password.")
+            if (triesRemaining == 0):
+                print("Maximum tries reached to login, locking account.")
+                currUser.setAccountStatus(True)
+                return
+
+            triesRemaining -= 1
+            print(f"Incorrect password. You have {triesRemaining} tries left.")
+
+
             userPassword = input("Enter your login password: ")
+
+    # if a user's account is locked, they must answer security questions to unlock it.
+    # TODO
+    # if (currUser.accountLocked is True):
 
     print("Successfully logged in! Select an option below:")
     print("Enter \"update\" to update your password.")
@@ -67,19 +89,24 @@ def loginUser(database):
 
         userMessage = input("Enter the message to be sent:")
 
-        recievingUser = database[userToMessage]
-        recievingUser.addMessage((currUserName, userMessage))
+        receivingUser = database[userToMessage]
+        # messages are stored as a tuple with the userName of whoever sent the message and the message itself
+        receivingUser.addMessage((currUserName, userMessage))
         print(f"Message successfully sent to {userToMessage}.")
 
     # read your own messages
     elif (userChoice == "read messages"):
-        messageList = currUser.messageList
+        messageList = currUser.getMessageList
         for message in messageList:
             print(f"Message from {message[0]}: {message[1]}")
 
+    # delete your received messages
+    elif (userChoice == "delete messages"):
+        currUser.clearMessages()
+
     # delete your own account
     elif (userChoice == "delete me"):
-        userChoice = input("Are you sure you want to delete your account? Enter yes to confirm:")
+        userChoice = input("Are you sure you want to delete your account? Enter \"yes\" to confirm:")
 
         if (userChoice == "yes"):
             del database[currUserName]
@@ -116,4 +143,4 @@ if __name__ == '__main__':
         elif inputString == "test":
             for key in database:
                 testUser = database[key]
-                print(testUser.password)
+                print(testUser.userName)
