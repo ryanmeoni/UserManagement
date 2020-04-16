@@ -3,7 +3,7 @@ class User:
     username = None
     password = None
     accountLocked = None
-    securityQuestions = []
+    securityAnswers = []
     messageList = []
 
     def __init__(self, username, password):
@@ -32,8 +32,8 @@ class User:
     def setUserAccountStatus(self, accountLockedStatus):
         self.accountLocked = accountLockedStatus
 
-    def clearSecurityQuestions(self):
+    def clearSecurityAnswers(self):
         self.securityQuestions.clear()
 
-    def getSecurityQuestions(self):
-        return self.securityQuestions
+    def getSecurityAnswers(self):
+        return self.securityAnswers

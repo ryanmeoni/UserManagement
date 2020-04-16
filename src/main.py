@@ -1,5 +1,6 @@
 from src.user import User
 
+
 def createNewUser(database):
     userName = input("Enter username for new user: ")
 
@@ -26,9 +27,9 @@ def createNewUser(database):
 
     # put new user into database
     newUser = User(userName, userPassword)
-    questionList = newUser.getSecurityQuestions()
-    questionList.append(answerOne)
-    questionList.append(answerTwo)
+    answerList = newUser.getSecurityAnswers()
+    answerList.append(answerOne)
+    answerList.append(answerTwo)
     database[userName] = newUser
 
 def loginUser(database):
@@ -46,29 +47,43 @@ def loginUser(database):
         while (userPassword != currUser.password):
             if (triesRemaining == 0):
                 print("Maximum tries reached to login, locking account.")
-                currUser.setAccountStatus(True)
+                currUser.setUserAccountStatus(True)
                 return
 
-            triesRemaining -= 1
             print(f"Incorrect password. You have {triesRemaining} tries left.")
+            triesRemaining -= 1
 
 
             userPassword = input("Enter your login password: ")
 
-    # if a user's account is locked, they must answer security questions to unlock it.
-    # TODO
-    # if (currUser.accountLocked is True):
+    if (currUser.accountLocked is True):
+        print("Your account is locked, answer the two security questions to unlock it.")
+        answerOne = input("Question 1: What is your favorite color? \n Enter answer: ")
+        if (currUser.securityAnswers[0] != answerOne):
+            print("Incorrect answer. The account is still locked.")
+            return
+
+        answerTwo = input("Question 2: What is your favorite food? \n Enter answer: ")
+        if (currUser.securityAnswers[1] != answerTwo):
+            print("Incorrect answer. The account is still locked.")
+            return
+
+        else:
+            print("Account unlocked.")
+            currUser.accountLocked = False
 
     print("Successfully logged in! Select an option below:")
-    print("Enter \"update\" to update your password.")
     print("Enter \"send message\" to send another user a message.")
     print("Enter \"read messages\" to read your own messages.")
+    print("Enter \"update security questions\" to update your security questions.")
+    print("Enter \"update password\" to update your password.")
+    print("Enter \"logout\" to logout of your account.")
     print("Enter \"delete\" to delete your account.\n")
 
     userChoice = input("Enter option: ")
 
     # update your own password
-    if (userChoice == "update"):
+    if (userChoice == "update password"):
         newPassword = input("Enter your new password: ")
         confirmNewPassword = input("Re-enter your new password: ")
         while (newPassword != confirmNewPassword):
@@ -78,6 +93,15 @@ def loginUser(database):
 
         print(f"Password successfully changed to: {confirmNewPassword}")
         currUser.updatePassword(newPassword)
+
+    # update your security questions
+    elif (userChoice == "update security questions"):
+        currUser.clearSecurityAnswers()
+        answerOne = input("Question 1: What is your favorite color? \n Enter answer: ")
+        answerTwo = input("Question 2: What is your favorite food? \n Enter answer: ")
+        answerList = currUser.getSecurityAnswers()
+        answerList.append(answerOne)
+        answerList.append(answerTwo)
 
     # send message to another user
     elif (userChoice == "send message"):
@@ -104,6 +128,10 @@ def loginUser(database):
     elif (userChoice == "delete messages"):
         currUser.clearMessages()
 
+    elif (userChoice == "logout"):
+        print("Successfully logged out.")
+        return
+
     # delete your own account
     elif (userChoice == "delete me"):
         userChoice = input("Are you sure you want to delete your account? Enter \"yes\" to confirm:")
@@ -114,10 +142,34 @@ def loginUser(database):
             print("Aborting deletion of your account.")
 
 
+def seedDatabase(database):
+    userOne = User("ryan", "BlackHawk9")
+    userOneSecurityAnswerOne = "black"
+    userOneSecurityAnswerTwo = "fish"
+    userOneSecurityAnswerList = userOne.getSecurityAnswers()
+    userOneSecurityAnswerList = [userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+
+    userTwo = User("bob", "bobby")
+    userOneSecurityAnswerOne = "red"
+    userOneSecurityAnswerTwo = "chicken"
+    userOneSecurityAnswerList = userOne.getSecurityAnswers()
+    userOneSecurityAnswerList = [userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+
+    userThree = User("jack", "jackLink")
+    userOneSecurityAnswerOne = "blue"
+    userOneSecurityAnswerTwo = "steak"
+    userOneSecurityAnswerList = userOne.getSecurityAnswers()
+    userOneSecurityAnswerList = [userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+
+    database["ryan"] = userOne
+    database["bob"] = userTwo
+    database["jack"] = userThree
+
 if __name__ == '__main__':
 
     # the "database" of users (will later migrate to relational database like MySQL or document based like MongoDB)
     database = {}
+    seedDatabase(database)
 
     while True:
         print("Select one of the options listed below.")
@@ -143,4 +195,4 @@ if __name__ == '__main__':
         elif inputString == "test":
             for key in database:
                 testUser = database[key]
-                print(testUser.userName)
+                print(f"Username: {testUser.userName}. Password: {testUser.password}")
