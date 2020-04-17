@@ -1,5 +1,5 @@
 from src.user import User
-
+from src.message import Message
 
 def createNewUser(database):
     userName = input("Enter username for new user: ")
@@ -24,12 +24,10 @@ def createNewUser(database):
     print("You must answer two security questions.")
     answerOne = input("Question 1: What is your favorite color? \n Enter answer: ")
     answerTwo = input("Question 2: What is your favorite food? \n Enter answer: ")
+    newUserSecurityQuestions = [answerOne, answerTwo]
 
     # put new user into database
-    newUser = User(userName, userPassword)
-    answerList = newUser.getSecurityAnswers()
-    answerList.append(answerOne)
-    answerList.append(answerTwo)
+    newUser = User(userName, userPassword, newUserSecurityQuestions)
     database[userName] = newUser
 
 def loginUser(database):
@@ -114,15 +112,16 @@ def loginUser(database):
         userMessage = input("Enter the message to be sent:")
 
         receivingUser = database[userToMessage]
-        # messages are stored as a tuple with the userName of whoever sent the message and the message itself
-        receivingUser.addMessage((currUserName, userMessage))
+        outgoingMessage = Message(currUser.userName, userMessage)
+
+        receivingUser.addMessage(outgoingMessage)
         print(f"Message successfully sent to {userToMessage}.")
 
     # read your own messages
     elif (userChoice == "read messages"):
         messageList = currUser.getMessageList
         for message in messageList:
-            print(f"Message from {message[0]}: {message[1]}")
+            print(f"Message from {message.messageAuthor}: {message.messageText}")
 
     # delete your received messages
     elif (userChoice == "delete messages"):
@@ -143,27 +142,31 @@ def loginUser(database):
 
 
 def seedDatabase(database):
-    userOne = User("ryan", "BlackHawk9")
+
     userOneSecurityAnswerOne = "black"
     userOneSecurityAnswerTwo = "fish"
-    userOneSecurityAnswerList = userOne.getSecurityAnswers()
-    userOneSecurityAnswerList = [userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+    userOneSecurityAnswers =[userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+    userOne = User("ryan", "BlackHawk9", userOneSecurityAnswers)
 
-    userTwo = User("bob", "bobby")
-    userOneSecurityAnswerOne = "red"
-    userOneSecurityAnswerTwo = "chicken"
-    userOneSecurityAnswerList = userOne.getSecurityAnswers()
-    userOneSecurityAnswerList = [userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+    userTwoSecurityAnswerOne = "red"
+    userTwoSecurityAnswerTwo = "apple"
+    userTwoSecurityAnswers = [userTwoSecurityAnswerOne, userTwoSecurityAnswerTwo]
+    userTwo = User("john", "BlackHawk9", userTwoSecurityAnswers)
 
-    userThree = User("jack", "jackLink")
-    userOneSecurityAnswerOne = "blue"
-    userOneSecurityAnswerTwo = "steak"
-    userOneSecurityAnswerList = userOne.getSecurityAnswers()
-    userOneSecurityAnswerList = [userOneSecurityAnswerOne, userOneSecurityAnswerTwo]
+    userThreeSecurityAnswerOne = "blue"
+    userThreeSecurityAnswerTwo = "steak"
+    userThreeSecurityAnswers = [userThreeSecurityAnswerOne, userThreeSecurityAnswerTwo]
+    userThree = User("billy", "iLoveSteak", userThreeSecurityAnswers)
+
+    userFourSecurityAnswerOne = "green"
+    userFourSecurityAnswerTwo = "peas"
+    userFourSecurityAnswers = [userFourSecurityAnswerOne, userFourSecurityAnswerTwo]
+    userFour = User("jack", "iLovePeas", userFourSecurityAnswers)
 
     database["ryan"] = userOne
-    database["bob"] = userTwo
-    database["jack"] = userThree
+    database["john"] = userTwo
+    database["billy"] = userThree
+    database["jack"] = userFour
 
 if __name__ == '__main__':
 

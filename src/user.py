@@ -6,9 +6,10 @@ class User:
     securityAnswers = []
     messageList = []
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, securityAnswers):
         self.username = username
         self.password = password
+        self.securityAnswers = securityAnswers
         self.accountLocked = False
 
     def setPassword(self, newPassword):
